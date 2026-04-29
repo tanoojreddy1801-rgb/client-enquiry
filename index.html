@@ -1,0 +1,773 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Invincible ScoTax - Client Details Form</title>
+  <style>
+    :root {
+      --bg-1: #f8fbff;
+      --bg-2: #eef5ff;
+      --bg-3: #f9fcff;
+      --surface: rgba(255, 255, 255, 0.8);
+      --text: #24324a;
+      --text-soft: #60708d;
+      --line: rgba(186, 205, 232, 0.45);
+      --primary: #5b8def;
+      --primary-2: #7fb3ff;
+      --teal: #57c6c2;
+      --danger: #c45d73;
+      --success: #2f8d6a;
+      --warning: #c8862f;
+      --shadow-lg: 0 24px 60px rgba(115, 149, 199, 0.18);
+      --shadow-sm: 0 8px 20px rgba(122, 152, 199, 0.1);
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      font-family: "Segoe UI", Tahoma, Arial, sans-serif;
+      color: var(--text);
+      background:
+        radial-gradient(circle at 0% 0%, rgba(168, 202, 255, 0.26), transparent 28%),
+        radial-gradient(circle at 100% 10%, rgba(126, 215, 193, 0.22), transparent 24%),
+        radial-gradient(circle at 70% 100%, rgba(246, 183, 200, 0.18), transparent 24%),
+        linear-gradient(180deg, var(--bg-1) 0%, var(--bg-2) 52%, var(--bg-3) 100%);
+      overflow-x: hidden;
+    }
+
+    .navbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 16px 26px;
+      background: rgba(255, 255, 255, 0.68);
+      backdrop-filter: blur(18px);
+      border-bottom: 1px solid rgba(201, 216, 238, 0.45);
+      box-shadow: 0 8px 24px rgba(141, 169, 207, 0.08);
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .brand-mark {
+      width: 46px;
+      height: 46px;
+      border-radius: 16px;
+      background:
+        linear-gradient(135deg, rgba(255,255,255,0.95), rgba(255,255,255,0.65)),
+        linear-gradient(135deg, var(--primary), var(--teal));
+      box-shadow: inset 0 1px 0 rgba(255,255,255,0.7), var(--shadow-sm);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .brand-mark::after {
+      content: "IST";
+      position: absolute;
+      inset: 0;
+      display: grid;
+      place-items: center;
+      font-weight: 800;
+      color: #3b67b7;
+      font-size: 15px;
+    }
+
+    .brand-text {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+
+    .logo {
+      font-size: 26px;
+      line-height: 1;
+      font-weight: 800;
+      letter-spacing: 0.5px;
+      background: linear-gradient(90deg, #4d7fe5, #61b7d5, #4d7fe5);
+      background-size: 200% auto;
+      color: transparent;
+      background-clip: text;
+      -webkit-background-clip: text;
+      animation: shimmer 5s linear infinite;
+    }
+
+    .logo-sub {
+      color: var(--text-soft);
+      font-size: 12px;
+      font-weight: 600;
+      letter-spacing: 0.4px;
+      text-transform: uppercase;
+    }
+
+    .nav-right {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+    }
+
+    .nav-pill {
+      padding: 10px 14px;
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.72);
+      border: 1px solid rgba(197, 214, 238, 0.5);
+      color: var(--text-soft);
+      font-size: 13px;
+      font-weight: 700;
+      box-shadow: var(--shadow-sm);
+    }
+
+    .container {
+      max-width: 1180px;
+      margin: 0 auto;
+      padding: 28px 22px 40px;
+    }
+
+    .hero-grid {
+      display: grid;
+      grid-template-columns: minmax(320px, 0.72fr) minmax(320px, 1.28fr);
+      gap: 24px;
+      align-items: start;
+    }
+
+    .panel {
+      position: relative;
+      background: var(--surface);
+      backdrop-filter: blur(16px);
+      border: 1px solid var(--line);
+      border-radius: 28px;
+      box-shadow: var(--shadow-lg);
+      padding: 26px;
+      overflow: hidden;
+    }
+
+    .panel::before {
+      content: "";
+      position: absolute;
+      inset: 0 auto auto 0;
+      width: 100%;
+      height: 6px;
+      background: linear-gradient(90deg, rgba(91,141,239,0.85), rgba(87,198,194,0.75), rgba(246,183,200,0.7));
+    }
+
+    .section-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: end;
+      gap: 14px;
+      margin-bottom: 18px;
+    }
+
+    .section-head-left {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    h1, h2, h3, h4, p { margin-top: 0; }
+
+    h1 {
+      margin-bottom: 0;
+      font-size: 30px;
+      font-weight: 800;
+    }
+
+    h2 {
+      font-size: 24px;
+      margin-bottom: 10px;
+    }
+
+    .subtle {
+      color: var(--text-soft);
+      font-size: 13px;
+      line-height: 1.6;
+    }
+
+    .chip {
+      padding: 8px 12px;
+      border-radius: 999px;
+      background: linear-gradient(135deg, rgba(255,255,255,0.88), rgba(246,250,255,0.75));
+      border: 1px solid rgba(197, 214, 238, 0.55);
+      color: #5f7396;
+      font-size: 12px;
+      font-weight: 700;
+      box-shadow: var(--shadow-sm);
+      white-space: nowrap;
+    }
+
+    label {
+      display: block;
+      margin-bottom: 8px;
+      font-size: 14px;
+      font-weight: 700;
+    }
+
+    input, select, button { font: inherit; }
+
+    input, select {
+      width: 100%;
+      min-height: 48px;
+      border: 1px solid rgba(190, 208, 233, 0.62);
+      background: linear-gradient(180deg, rgba(255,255,255,0.94), rgba(248,251,255,0.92));
+      border-radius: 16px;
+      padding: 0 14px;
+      color: var(--text);
+      outline: none;
+      transition: 0.22s ease;
+      box-shadow: inset 0 1px 0 rgba(255,255,255,0.78);
+      margin-bottom: 16px;
+    }
+
+    input[type="file"] {
+      height: auto;
+      padding: 13px 14px;
+      line-height: 1.45;
+    }
+
+    input:focus, select:focus {
+      border-color: rgba(91,141,239,0.78);
+      box-shadow:
+        0 0 0 4px rgba(126, 177, 255, 0.14),
+        0 10px 24px rgba(141, 175, 224, 0.12);
+    }
+
+    input:disabled, select:disabled {
+      cursor: not-allowed;
+      color: #95a1b5;
+      background: rgba(237, 243, 251, 0.68);
+    }
+
+    .field-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(220px, 1fr));
+      gap: 0 16px;
+    }
+
+    .field-full { grid-column: 1 / -1; }
+
+    .required {
+      color: var(--danger);
+      margin-left: 3px;
+    }
+
+    .btn-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      margin-top: 8px;
+    }
+
+    .btn-primary, .btn-secondary, .btn-ghost {
+      min-height: 46px;
+      padding: 0 18px;
+      border-radius: 15px;
+      cursor: pointer;
+      font-weight: 700;
+      transition: transform 0.2s ease, filter 0.2s ease;
+    }
+
+    .btn-primary {
+      border: none;
+      color: #fff;
+      background: linear-gradient(135deg, #5b8def, #78adff);
+      box-shadow: var(--shadow-sm);
+    }
+
+    .btn-secondary {
+      border: 1px solid rgba(197, 214, 238, 0.7);
+      background: rgba(255,255,255,0.76);
+      color: var(--text);
+      box-shadow: var(--shadow-sm);
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .btn-ghost {
+      border: 1px dashed rgba(91,141,239,0.45);
+      background: rgba(248, 251, 255, 0.76);
+      color: var(--primary);
+    }
+
+    .btn-primary:hover, .btn-secondary:hover, .btn-ghost:hover {
+      transform: translateY(-2px);
+      filter: brightness(1.03);
+    }
+
+    .status-message {
+      margin-top: 14px;
+      min-height: 20px;
+      font-size: 13px;
+      font-weight: 700;
+    }
+
+    .status-message.error { color: var(--danger); }
+    .status-message.success { color: var(--success); }
+    .status-message.warning { color: var(--warning); }
+
+    .info-box, .safe-box, .workflow-box {
+      margin-top: 18px;
+      padding: 14px 16px;
+      border-radius: 16px;
+      background: rgba(255,255,255,0.7);
+      border: 1px solid rgba(197, 214, 238, 0.55);
+      color: var(--text-soft);
+      font-size: 13px;
+      line-height: 1.6;
+    }
+
+    .workflow-box {
+      background: linear-gradient(180deg, rgba(247,251,255,0.94), rgba(235,245,255,0.92));
+    }
+
+    .safe-box {
+      background: linear-gradient(180deg, rgba(255,255,255,0.88), rgba(242,248,255,0.92));
+    }
+
+    .helper-list {
+      margin: 0;
+      padding-left: 18px;
+    }
+
+    .file-list {
+      display: grid;
+      gap: 8px;
+      margin: 8px 0 0;
+      padding: 0;
+      list-style: none;
+      color: var(--text-soft);
+      font-size: 13px;
+    }
+
+    .file-list li {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 8px 10px;
+      border-radius: 12px;
+      background: rgba(247, 250, 255, 0.92);
+      border: 1px solid rgba(197, 214, 238, 0.45);
+    }
+
+    .table-wrap {
+      border-radius: 18px;
+      border: 1px solid rgba(197, 214, 238, 0.55);
+      overflow: auto;
+      background: rgba(255,255,255,0.82);
+      margin-top: 16px;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 14px;
+    }
+
+    th, td {
+      padding: 12px 14px;
+      border-bottom: 1px solid rgba(197, 214, 238, 0.35);
+      text-align: left;
+    }
+
+    th {
+      background: rgba(243, 248, 255, 0.96);
+      color: var(--text-soft);
+      text-transform: uppercase;
+      font-size: 11px;
+      letter-spacing: 0.45px;
+    }
+
+    code {
+      background: rgba(241, 247, 255, 0.95);
+      padding: 2px 6px;
+      border-radius: 8px;
+      border: 1px solid rgba(197, 214, 238, 0.45);
+    }
+
+    .hidden { display: none !important; }
+
+    .footer-note {
+      margin-top: 20px;
+      font-size: 12px;
+      color: var(--text-soft);
+      line-height: 1.7;
+    }
+
+    @keyframes shimmer {
+      0% { background-position: 0% center; }
+      100% { background-position: 200% center; }
+    }
+
+    @media (max-width: 980px) {
+      .hero-grid,
+      .field-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    @media (max-width: 700px) {
+      .container { padding: 16px 14px 28px; }
+      .navbar { padding: 14px; align-items: start; flex-direction: column; gap: 12px; }
+      .panel { padding: 18px; border-radius: 22px; }
+      .section-head {
+        align-items: start;
+        flex-direction: column;
+      }
+      .btn-row {
+        flex-direction: column;
+      }
+      .btn-primary,
+      .btn-secondary,
+      .btn-ghost {
+        width: 100%;
+      }
+    }
+  </style>
+</head>
+<body>
+  <header class="navbar">
+    <div class="brand">
+      <div class="brand-mark" aria-hidden="true"></div>
+      <div class="brand-text">
+        <div class="logo">Invincible ScoTax</div>
+        <div class="logo-sub">Client Document Intake</div>
+      </div>
+    </div>
+    <div class="nav-right">
+      <div class="nav-pill">Direct email submission</div>
+    </div>
+  </header>
+
+  <main class="container">
+    <div class="hero-grid">
+      <section class="panel">
+        <div class="section-head">
+          <div class="section-head-left">
+            <h1>Client Details</h1>
+            <p class="subtle">Submit client information and Form 16 attachments for review.</p>
+          </div>
+          <span class="chip">No Firebase storage</span>
+        </div>
+
+        <div class="workflow-box">
+          <strong>Before uploading:</strong>
+          <ul class="helper-list">
+            <li>Attach at least Form 16.</li>
+            <li>Use PDF, JPG, JPEG, or PNG files only.</li>
+            <li>Upload up to 20 documents, each not more than 1 MB.</li>
+            <li>Compress large PDFs here: <a href="https://www.ilovepdf.com/compress_pdf" target="_blank" rel="noopener">iLovePDF Compress PDF</a>.</li>
+          </ul>
+        </div>
+
+        <div class="safe-box">
+          Duplicate checks here are performed in this browser using PAN and PB/ID number only. A site-wide duplicate block requires a backend or database because pure HTML cannot remember submissions made by other users.
+        </div>
+      </section>
+
+      <section class="panel">
+        <div class="section-head">
+          <div class="section-head-left">
+            <h2>Submission Form</h2>
+            <p class="subtle">Fields marked with <span class="required">*</span> are mandatory unless automatically disabled.</p>
+          </div>
+        </div>
+
+        <form id="clientForm" action="https://formsubmit.co/admin@invinciblescotax.info" method="POST" enctype="multipart/form-data" novalidate>
+          <input type="hidden" name="_subject" value="New Invincible ScoTax Client Submission">
+          <input type="hidden" name="_template" value="table">
+          <input type="hidden" name="_captcha" value="true">
+          <input type="hidden" name="_honey" value="">
+
+          <div class="field-grid">
+            <div class="field-full">
+              <label for="clientName">Name <span class="required">*</span></label>
+              <input id="clientName" name="Name" type="text" autocomplete="name" required>
+            </div>
+
+            <div>
+              <label for="clientStatus">Status of the Client <span class="required">*</span></label>
+              <select id="clientStatus" name="Status of Client" required>
+                <option value="">Select status</option>
+                <option value="Individual">Individual</option>
+                <option value="Others">Others</option>
+              </select>
+            </div>
+
+            <div>
+              <label for="pan">PAN <span class="required">*</span></label>
+              <input id="pan" name="PAN" type="text" minlength="10" maxlength="10" autocomplete="off" placeholder="ABCDE1234F" required>
+            </div>
+
+            <div>
+              <label for="mobile">Mobile No. <span class="required">*</span></label>
+              <input id="mobile" name="Mobile No." type="tel" inputmode="numeric" minlength="10" maxlength="10" autocomplete="tel" placeholder="10 digits only" required>
+            </div>
+
+            <div>
+              <label for="employerCategory">Category of Employer <span class="required">*</span></label>
+              <select id="employerCategory" name="Category of Employer" required>
+                <option value="">Select employer category</option>
+                <option value="HAL">HAL</option>
+                <option value="DRDO">DRDO</option>
+                <option value="ISRO">ISRO</option>
+                <option value="Other Govt Entities or PSUs">Other Govt Entities or PSUs</option>
+                <option value="Others">Others</option>
+              </select>
+            </div>
+
+            <div>
+              <label for="pbNumber">PB. No / ID No <span class="required">*</span></label>
+              <input id="pbNumber" name="PB. No / ID No" type="text" autocomplete="off" placeholder="Numbers and special characters only" required>
+            </div>
+
+            <div class="field-full">
+              <label for="documents">Document Attachments <span class="required">*</span></label>
+              <input id="documents" name="Documents[]" type="file" accept=".jpeg,.jpg,.png,.pdf,image/jpeg,image/png,application/pdf" multiple required>
+              <ul id="fileList" class="file-list" aria-live="polite"></ul>
+            </div>
+          </div>
+
+          <div class="btn-row">
+            <button class="btn-primary" type="submit">Submit to Admin Mail</button>
+            <button class="btn-ghost" type="reset">Clear Form</button>
+            <a class="btn-secondary" href="https://www.ilovepdf.com/compress_pdf" target="_blank" rel="noopener">Compress PDF</a>
+          </div>
+
+          <div id="statusMessage" class="status-message" role="alert" aria-live="polite"></div>
+        </form>
+
+        <div class="info-box">
+          First-time FormSubmit use may ask the mailbox owner to confirm the address before delivery starts. Files are sent as multipart attachments to <code>admin@invinciblescotax.info</code>.
+        </div>
+
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Rule</th>
+                <th>Applied Validation</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>PAN</td>
+                <td>10 characters: first five letters, fourth letter P, next four digits, last letter.</td>
+              </tr>
+              <tr>
+                <td>Mobile</td>
+                <td>Exactly 10 digits, no symbols or spaces.</td>
+              </tr>
+              <tr>
+                <td>PB/ID</td>
+                <td>Enabled only for HAL, DRDO, ISRO, Other Govt Entities or PSUs; no alphabets allowed.</td>
+              </tr>
+              <tr>
+                <td>Documents</td>
+                <td>1 to 20 files, PDF/JPG/JPEG/PNG only, each file up to 1 MB.</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+    </div>
+
+    <p class="footer-note">
+      This page does not initialize Firebase or write to Firestore. The email delivery is handled by the configured form endpoint.
+    </p>
+  </main>
+
+  <script>
+    const form = document.getElementById("clientForm");
+    const statusMessage = document.getElementById("statusMessage");
+    const clientStatus = document.getElementById("clientStatus");
+    const pan = document.getElementById("pan");
+    const mobile = document.getElementById("mobile");
+    const employerCategory = document.getElementById("employerCategory");
+    const pbNumber = document.getElementById("pbNumber");
+    const documents = document.getElementById("documents");
+    const fileList = document.getElementById("fileList");
+
+    const disabledForOthers = [pan, mobile, employerCategory, pbNumber, documents];
+    const panRule = /^[A-Z]{3}P[A-Z][0-9]{4}[A-Z]$/;
+    const mobileRule = /^[0-9]{10}$/;
+    const pbRule = /^[^A-Za-z]+$/;
+    const allowedExtensions = new Set(["pdf", "jpg", "jpeg", "png"]);
+    const pbRequiredEmployers = new Set(["HAL", "DRDO", "ISRO", "Other Govt Entities or PSUs"]);
+    const maxFiles = 20;
+    const maxFileBytes = 1024 * 1024;
+    const localDuplicatePrefix = "invincible-scotax-submission:";
+
+    function setStatus(message, type) {
+      statusMessage.textContent = message;
+      statusMessage.className = type ? `status-message ${type}` : "status-message";
+    }
+
+    function normalizePan() {
+      pan.value = pan.value.toUpperCase().replace(/\s/g, "");
+    }
+
+    function formatBytes(bytes) {
+      return `${(bytes / 1024 / 1024).toFixed(2)} MB`;
+    }
+
+    function dedupeKey() {
+      const cleanPan = pan.value.trim().toUpperCase();
+      const cleanPb = pbNumber.disabled ? "" : pbNumber.value.trim();
+      if (!cleanPan && !cleanPb) return "";
+      return `${localDuplicatePrefix}${cleanPan}|${cleanPb}`;
+    }
+
+    function setFieldEnabled(field, enabled) {
+      field.disabled = !enabled;
+      field.required = enabled;
+      if (!enabled) {
+        if (field.type === "file") {
+          field.value = "";
+          fileList.innerHTML = "";
+        } else {
+          field.value = "";
+        }
+      }
+    }
+
+    function syncStatusFields() {
+      const isOthers = clientStatus.value === "Others";
+      disabledForOthers.forEach((field) => setFieldEnabled(field, !isOthers));
+      syncEmployerFields();
+
+      if (isOthers) {
+        setStatus("Only name and client status are required when status is Others.", "warning");
+      } else if (statusMessage.textContent.includes("Only name")) {
+        setStatus("", "");
+      }
+    }
+
+    function syncEmployerFields() {
+      if (clientStatus.value === "Others") {
+        setFieldEnabled(pbNumber, false);
+        return;
+      }
+
+      const needsPb = pbRequiredEmployers.has(employerCategory.value);
+      setFieldEnabled(pbNumber, needsPb);
+    }
+
+    function renderFileList() {
+      fileList.innerHTML = "";
+      Array.from(documents.files).forEach((file) => {
+        const item = document.createElement("li");
+        const name = document.createElement("span");
+        const size = document.createElement("strong");
+        name.textContent = file.name;
+        size.textContent = formatBytes(file.size);
+        item.append(name, size);
+        fileList.appendChild(item);
+      });
+    }
+
+    function validateFiles() {
+      if (documents.disabled) return "";
+      const files = Array.from(documents.files);
+
+      if (files.length === 0) return "Please upload at least Form 16.";
+      if (files.length > maxFiles) return "You can upload a maximum of 20 documents.";
+
+      for (const file of files) {
+        const extension = file.name.split(".").pop().toLowerCase();
+        if (!allowedExtensions.has(extension)) {
+          return `${file.name} is not an allowed file type. Please upload PDF, JPG, JPEG, or PNG only.`;
+        }
+        if (file.size > maxFileBytes) {
+          return `${file.name} is ${formatBytes(file.size)}. Each document must be 1 MB or less.`;
+        }
+      }
+
+      return "";
+    }
+
+    function validateForm() {
+      const name = document.getElementById("clientName").value.trim();
+      const status = clientStatus.value;
+
+      if (!name) return "Please enter the client's name.";
+      if (!status) return "Please select the client's status.";
+
+      if (status === "Others") return "";
+
+      normalizePan();
+
+      if (!panRule.test(pan.value)) {
+        return "Please enter a valid PAN: first five alphabets with P as the fourth character, four numbers, and one final alphabet.";
+      }
+
+      if (!mobileRule.test(mobile.value)) {
+        return "Please enter a valid 10 digit mobile number, using numerals only.";
+      }
+
+      if (!employerCategory.value) {
+        return "Please select the category of employer.";
+      }
+
+      if (!pbNumber.disabled) {
+        if (!pbNumber.value.trim()) return "Please enter the PB. No / ID No.";
+        if (!pbRule.test(pbNumber.value.trim())) {
+          return "PB. No / ID No can contain numerics and special characters only, with no alphabets.";
+        }
+      }
+
+      const duplicateKey = dedupeKey();
+      if (duplicateKey && localStorage.getItem(duplicateKey)) {
+        return "A submission with this PAN and PB/ID combination has already been made from this browser.";
+      }
+
+      return validateFiles();
+    }
+
+    pan.addEventListener("input", normalizePan);
+    mobile.addEventListener("input", () => {
+      mobile.value = mobile.value.replace(/\D/g, "").slice(0, 10);
+    });
+    pbNumber.addEventListener("input", () => {
+      pbNumber.value = pbNumber.value.replace(/[A-Za-z]/g, "");
+    });
+    clientStatus.addEventListener("change", syncStatusFields);
+    employerCategory.addEventListener("change", syncEmployerFields);
+    documents.addEventListener("change", () => {
+      renderFileList();
+      const fileError = validateFiles();
+      setStatus(fileError, fileError ? "error" : "");
+    });
+
+    form.addEventListener("reset", () => {
+      setTimeout(() => {
+        syncStatusFields();
+        fileList.innerHTML = "";
+        setStatus("", "");
+      });
+    });
+
+    form.addEventListener("submit", (event) => {
+      const validationError = validateForm();
+      if (validationError) {
+        event.preventDefault();
+        setStatus(validationError, "error");
+        return;
+      }
+
+      const duplicateKey = dedupeKey();
+      if (duplicateKey) {
+        localStorage.setItem(duplicateKey, new Date().toISOString());
+      }
+      setStatus("Validation passed. Forwarding submission to admin mail...", "success");
+    });
+
+    syncStatusFields();
+  </script>
+</body>
+</html>
