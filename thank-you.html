@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Thank You - Invincibles CoTax</title>
+  <style>
+    :root {
+      --bg-1: #f8fbff;
+      --bg-2: #eef5ff;
+      --text: #24324a;
+      --text-soft: #60708d;
+      --primary: #5b8def;
+      --teal: #57c6c2;
+      --line: rgba(186, 205, 232, 0.5);
+      --shadow-lg: 0 24px 60px rgba(115, 149, 199, 0.18);
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      min-height: 100vh;
+      margin: 0;
+      display: grid;
+      place-items: center;
+      padding: 24px;
+      font-family: "Segoe UI", Tahoma, Arial, sans-serif;
+      color: var(--text);
+      background:
+        radial-gradient(circle at 0% 0%, rgba(168, 202, 255, 0.26), transparent 28%),
+        radial-gradient(circle at 100% 10%, rgba(126, 215, 193, 0.22), transparent 24%),
+        linear-gradient(180deg, var(--bg-1) 0%, var(--bg-2) 100%);
+    }
+
+    .panel {
+      width: min(620px, 100%);
+      padding: 34px;
+      border-radius: 24px;
+      border: 1px solid var(--line);
+      background: rgba(255, 255, 255, 0.84);
+      box-shadow: var(--shadow-lg);
+      text-align: center;
+    }
+
+    .mark {
+      width: 58px;
+      height: 58px;
+      margin: 0 auto 18px;
+      border-radius: 18px;
+      background: linear-gradient(135deg, var(--primary), var(--teal));
+    }
+
+    h1 {
+      margin: 0 0 10px;
+      font-size: 30px;
+    }
+
+    p {
+      margin: 0;
+      color: var(--text-soft);
+      line-height: 1.7;
+    }
+
+    a {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 46px;
+      margin-top: 22px;
+      padding: 0 18px;
+      border-radius: 15px;
+      color: #fff;
+      background: linear-gradient(135deg, #5b8def, #78adff);
+      text-decoration: none;
+      font-weight: 700;
+    }
+  </style>
+</head>
+<body>
+  <main class="panel">
+    <div class="mark" aria-hidden="true"></div>
+    <h1>Enquiry Submitted</h1>
+    <p>Thank you. Your ITR enquiry has been sent to Invincibles CoTax. We will review the details and get back to you shortly.</p>
+    <a href="./index.html">Submit Another Enquiry</a>
+  </main>
+</body>
+</html>
