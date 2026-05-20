@@ -474,7 +474,7 @@
         </div>
 
         <div class="safe-box">
-          After validation, this page prepares a PDF summary of the form for sharing through WhatsApp to <code>+91 90100 43298</code>.
+          After validation, this page prepares an image summary of the form for sharing through WhatsApp.
         </div>
       </section>
 
@@ -551,7 +551,7 @@
         </form>
 
         <div class="info-box">
-          On supported mobile browsers, this form opens the native share sheet with a PDF attached and the WhatsApp message ready. If file sharing is unavailable, it downloads the PDF and opens the WhatsApp chat.
+          On supported mobile browsers, this form opens the native share sheet with an image attached and the WhatsApp message ready. Choose WhatsApp and tap send.
         </div>
 
         <div class="table-wrap">
@@ -753,7 +753,7 @@
       return validateFiles();
     }
 
-    function buildPdfRows() {
+    function buildSummaryRows() {
       const files = Array.from(documents.files).map((file) => `${file.name} (${formatBytes(file.size)})`);
       const rows = [
         ["Name", document.getElementById("clientName").value.trim()],
@@ -780,38 +780,6 @@
       setTimeout(() => URL.revokeObjectURL(link.href), 1000);
     }
 
-    function openExternalUrl(url) {
-      const link = document.createElement("a");
-      link.href = url;
-      link.target = "_blank";
-      link.rel = "noopener";
-      document.body.appendChild(link);
-      link.click();
-      link.remove();
-    }
-
-    function openWhatsappChat() {
-      const encodedMessage = encodeURIComponent(whatsappMessage);
-      const isMobile = /Android|iPhone|iPad|iPod|IEMobile|Opera Mini/i.test(navigator.userAgent);
-      const appUrl = `whatsapp://send?phone=${whatsappNumber}&text=${encodedMessage}`;
-      const apiUrl = `https://api.whatsapp.com/send?phone=${whatsappNumber}&text=${encodedMessage}`;
-      const webUrl = `https://web.whatsapp.com/send?phone=${whatsappNumber}&text=${encodedMessage}`;
-
-      if (isMobile) {
-        window.location.href = appUrl;
-        setTimeout(() => openExternalUrl(apiUrl), 1600);
-        return;
-      }
-
-      openExternalUrl(webUrl);
-    }
-
-    function pdfEscape(value) {
-      return String(value || "")
-        .replace(/[\\()]/g, "\\$&")
-        .replace(/[^\x20-\x7E]/g, " ");
-    }
-
     function wrapText(value, maxChars) {
       const words = String(value || "").split(/\s+/);
       const lines = [];
@@ -832,92 +800,110 @@
       return lines.length ? lines : [""];
     }
 
-    function createSubmissionPdfBlob() {
-      const rows = buildPdfRows();
-      const stream = [];
-      let y = 790;
+    function roundRect(context, x, y, width, height, radius) {
+      const safeRadius = Math.min(radius, width / 2, height / 2);
+      context.beginPath();
+      context.moveTo(x + safeRadius, y);
+      context.lineTo(x + width - safeRadius, y);
+      context.quadraticCurveTo(x + width, y, x + width, y + safeRadius);
+      context.lineTo(x + width, y + height - safeRadius);
+      context.quadraticCurveTo(x + width, y + height, x + width - safeRadius, y + height);
+      context.lineTo(x + safeRadius, y + height);
+      context.quadraticCurveTo(x, y + height, x, y + height - safeRadius);
+      context.lineTo(x, y + safeRadius);
+      context.quadraticCurveTo(x, y, x + safeRadius, y);
+      context.closePath();
+    }
 
-      function fill(color) {
-        stream.push(`${color} rg`);
-      }
+    function createSubmissionImageBlob() {
+      const rows = buildSummaryRows();
+      const canvas = document.createElement("canvas");
+      const context = canvas.getContext("2d");
+      const width = 1080;
+      const padding = 56;
+      const labelWidth = 285;
+      const rowGap = 16;
+      const wrappedRows = rows.map(([label, value]) => [label, wrapText(value, 46)]);
+      const detailsHeight = wrappedRows.reduce((total, row) => total + Math.max(72, 38 + row[1].length * 30) + rowGap, 0);
 
-      function rect(x, topY, width, height, color) {
-        fill(color);
-        stream.push(`${x} ${topY - height} ${width} ${height} re f`);
-      }
+      canvas.width = width;
+      canvas.height = Math.max(1080, 370 + detailsHeight);
 
-      function text(value, x, lineY, size = 11, font = "F1", color = "0.14 0.20 0.29") {
-        fill(color);
-        stream.push(`BT /${font} ${size} Tf ${x} ${lineY} Td (${pdfEscape(value)}) Tj ET`);
-      }
+      context.fillStyle = "#f7fbff";
+      context.fillRect(0, 0, canvas.width, canvas.height);
 
-      rect(0, 842, 595, 842, "0.97 0.99 1");
-      rect(0, 842, 595, 118, "0.36 0.55 0.94");
-      text("Invincibles CoTax", 42, 790, 24, "F2", "1 1 1");
-      text("ITR Client Enquiry Summary", 42, 762, 14, "F1", "0.93 0.97 1");
-      text("Prepared from the client enquiry form", 42, 740, 10, "F1", "0.90 0.96 1");
+      const header = context.createLinearGradient(0, 0, width, 250);
+      header.addColorStop(0, "#5b8def");
+      header.addColorStop(1, "#57c6c2");
+      context.fillStyle = header;
+      context.fillRect(0, 0, width, 260);
 
-      rect(42, 695, 511, 42, "0.89 0.96 0.95");
-      text("WhatsApp message", 60, 668, 10, "F2", "0.18 0.39 0.36");
-      text(whatsappMessage, 190, 668, 11, "F1", "0.14 0.20 0.29");
+      context.fillStyle = "#ffffff";
+      context.font = "700 46px Segoe UI, Arial, sans-serif";
+      context.fillText("Invincibles CoTax", padding, 92);
+      context.font = "400 27px Segoe UI, Arial, sans-serif";
+      context.fillText("ITR Client Enquiry Summary", padding, 138);
+      context.font = "400 22px Segoe UI, Arial, sans-serif";
+      context.fillText("Prepared from the client enquiry form", padding, 183);
 
-      y = 622;
-      text("Client Details", 42, y, 16, "F2");
-      y -= 22;
+      context.fillStyle = "#eaf9f7";
+      roundRect(context, padding, 300, width - padding * 2, 92, 22);
+      context.fill();
+      context.fillStyle = "#2d6861";
+      context.font = "700 21px Segoe UI, Arial, sans-serif";
+      context.fillText("WhatsApp message", padding + 28, 354);
+      context.fillStyle = "#24324a";
+      context.font = "400 24px Segoe UI, Arial, sans-serif";
+      context.fillText(whatsappMessage, padding + 255, 354);
 
-      rows.forEach(([label, value], index) => {
-        const lines = wrapText(value, 54);
-        const rowHeight = Math.max(38, 24 + lines.length * 14);
-        rect(42, y + 13, 511, rowHeight, index % 2 ? "0.98 0.99 1" : "1 1 1");
-        text(label, 60, y - 6, 10, "F2", "0.38 0.44 0.55");
+      let y = 448;
+      context.fillStyle = "#24324a";
+      context.font = "700 30px Segoe UI, Arial, sans-serif";
+      context.fillText("Client Details", padding, y);
+      y += 36;
+
+      wrappedRows.forEach(([label, lines], index) => {
+        const rowHeight = Math.max(72, 38 + lines.length * 30);
+        context.fillStyle = index % 2 ? "#fbfdff" : "#ffffff";
+        roundRect(context, padding, y, width - padding * 2, rowHeight, 18);
+        context.fill();
+        context.strokeStyle = "#dce8f6";
+        context.stroke();
+
+        context.fillStyle = "#60708d";
+        context.font = "700 21px Segoe UI, Arial, sans-serif";
+        context.fillText(label, padding + 28, y + 43);
+
+        context.fillStyle = "#24324a";
+        context.font = "400 23px Segoe UI, Arial, sans-serif";
         lines.forEach((line, lineIndex) => {
-          text(line, 205, y - 6 - lineIndex * 14, 11, "F1", "0.14 0.20 0.29");
+          context.fillText(line, padding + labelWidth, y + 43 + lineIndex * 30);
         });
-        y -= rowHeight;
+
+        y += rowHeight + rowGap;
       });
 
-      rect(42, 88, 511, 36, "0.95 0.97 1");
-      text("This PDF is generated locally in the browser and is intended to be attached on WhatsApp.", 60, 64, 9, "F1", "0.38 0.44 0.55");
+      context.fillStyle = "#60708d";
+      context.font = "400 18px Segoe UI, Arial, sans-serif";
+      context.fillText("Generated locally in the browser for WhatsApp sharing.", padding, canvas.height - 48);
 
-      const content = stream.join("\n");
-      const objects = [
-        "<< /Type /Catalog /Pages 2 0 R >>",
-        "<< /Type /Pages /Kids [3 0 R] /Count 1 >>",
-        "<< /Type /Page /Parent 2 0 R /MediaBox [0 0 595 842] /Resources << /Font << /F1 4 0 R /F2 5 0 R >> >> /Contents 6 0 R >>",
-        "<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica >>",
-        "<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica-Bold >>",
-        `<< /Length ${content.length} >>\nstream\n${content}\nendstream`
-      ];
-
-      let pdf = "%PDF-1.4\n";
-      const offsets = [0];
-      objects.forEach((object, index) => {
-        offsets.push(pdf.length);
-        pdf += `${index + 1} 0 obj\n${object}\nendobj\n`;
+      return new Promise((resolve) => {
+        canvas.toBlob(resolve, "image/png", 0.95);
       });
-
-      const xrefOffset = pdf.length;
-      pdf += `xref\n0 ${objects.length + 1}\n0000000000 65535 f \n`;
-      offsets.slice(1).forEach((offset) => {
-        pdf += `${String(offset).padStart(10, "0")} 00000 n \n`;
-      });
-      pdf += `trailer\n<< /Size ${objects.length + 1} /Root 1 0 R >>\nstartxref\n${xrefOffset}\n%%EOF`;
-
-      return new Blob([pdf], { type: "application/pdf" });
     }
 
     async function prepareWhatsappSubmission() {
-      const pdfBlob = createSubmissionPdfBlob();
-      const pdfFile = new File([pdfBlob], "Invincibles-ITR-client-enquiry.pdf", { type: "application/pdf" });
+      const imageBlob = await createSubmissionImageBlob();
+      const imageFile = new File([imageBlob], "Invincibles-ITR-client-enquiry.png", { type: "image/png" });
 
-      if (navigator.canShare && navigator.canShare({ files: [pdfFile] }) && navigator.share) {
+      if (navigator.canShare && navigator.canShare({ files: [imageFile] }) && navigator.share) {
         try {
           await navigator.share({
             title: "Invincibles ITR enquiry",
             text: whatsappMessage,
-            files: [pdfFile]
+            files: [imageFile]
           });
-          setStatus("PDF prepared. Choose WhatsApp, select Invincibles, and tap send.", "success");
+          setStatus("Image prepared. Choose WhatsApp and tap send.", "success");
           return;
         } catch (error) {
           if (error && error.name === "AbortError") {
@@ -927,9 +913,8 @@
         }
       }
 
-      downloadBlob(pdfBlob, "Invincibles-ITR-client-enquiry.pdf");
-      setStatus("PDF downloaded. WhatsApp is opening with the message; attach the downloaded PDF before sending.", "warning");
-      openWhatsappChat();
+      downloadBlob(imageBlob, "Invincibles-ITR-client-enquiry.png");
+      setStatus("Your browser cannot open WhatsApp with an image attachment directly. The image was downloaded; share it to WhatsApp manually.", "warning");
     }
 
     pan.addEventListener("input", normalizePan);
@@ -968,7 +953,7 @@
         localStorage.setItem(duplicateKey, new Date().toISOString());
       }
 
-      setStatus("Validation passed. Preparing PDF for WhatsApp...", "success");
+      setStatus("Validation passed. Preparing image for WhatsApp...", "success");
       await prepareWhatsappSubmission();
     });
 
