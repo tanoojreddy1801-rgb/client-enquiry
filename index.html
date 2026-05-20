@@ -780,6 +780,32 @@
       setTimeout(() => URL.revokeObjectURL(link.href), 1000);
     }
 
+    function openExternalUrl(url) {
+      const link = document.createElement("a");
+      link.href = url;
+      link.target = "_blank";
+      link.rel = "noopener";
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+    }
+
+    function openWhatsappChat() {
+      const encodedMessage = encodeURIComponent(whatsappMessage);
+      const isMobile = /Android|iPhone|iPad|iPod|IEMobile|Opera Mini/i.test(navigator.userAgent);
+      const appUrl = `whatsapp://send?phone=${whatsappNumber}&text=${encodedMessage}`;
+      const apiUrl = `https://api.whatsapp.com/send?phone=${whatsappNumber}&text=${encodedMessage}`;
+      const webUrl = `https://web.whatsapp.com/send?phone=${whatsappNumber}&text=${encodedMessage}`;
+
+      if (isMobile) {
+        window.location.href = appUrl;
+        setTimeout(() => openExternalUrl(apiUrl), 1600);
+        return;
+      }
+
+      openExternalUrl(webUrl);
+    }
+
     function pdfEscape(value) {
       return String(value || "")
         .replace(/[\\()]/g, "\\$&")
@@ -903,8 +929,7 @@
 
       downloadBlob(pdfBlob, "Invincibles-ITR-client-enquiry.pdf");
       setStatus("PDF downloaded. WhatsApp is opening with the message; attach the downloaded PDF before sending.", "warning");
-      const whatsappUrl = `https://wa.me/${whatsappNumber}?text=${encodeURIComponent(whatsappMessage)}`;
-      window.location.href = whatsappUrl;
+      openWhatsappChat();
     }
 
     pan.addEventListener("input", normalizePan);
