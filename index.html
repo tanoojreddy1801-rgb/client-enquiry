@@ -448,7 +448,7 @@
       </div>
     </div>
     <div class="nav-right">
-      <div class="nav-pill">WhatsApp submission</div>
+      <div class="nav-pill">Email submission</div>
     </div>
   </header>
 
@@ -458,7 +458,7 @@
         <div class="section-head">
           <div class="section-head-left">
             <h1>Client Details</h1>
-            <p class="subtle">Submit client information for review through WhatsApp.</p>
+            <p class="subtle">Submit client information and optional documents for ITR review.</p>
           </div>
           <span class="chip">client page</span>
         </div>
@@ -474,7 +474,7 @@
         </div>
 
         <div class="safe-box">
-          After validation, this page prepares an image summary of the form for sharing through WhatsApp.
+          After validation, this page emails the client enquiry to <code>invinciblescotax@gmail.com</code>.
         </div>
       </section>
 
@@ -486,7 +486,13 @@
           </div>
         </div>
 
-        <form id="clientForm" novalidate>
+        <form id="clientForm" action="https://formsubmit.co/invinciblescotax@gmail.com" method="POST" enctype="multipart/form-data" novalidate>
+          <input type="hidden" name="_subject" value="New ITR Client Enquiry - Invincibles CoTax">
+          <input type="hidden" name="_template" value="box">
+          <input type="hidden" name="_captcha" value="false">
+          <input type="hidden" name="_honey" value="">
+          <input type="hidden" name="Brand" value="Invincibles CoTax">
+          <input type="hidden" name="Email Introduction" value="A new client is interested in getting their ITR done. Kindly review the validated details below and contact the client.">
           <div class="field-grid">
             <div class="field-full">
               <label for="clientName">Name <span class="required">*</span></label>
@@ -542,7 +548,7 @@
           </div>
 
           <div class="btn-row">
-            <button class="btn-primary" type="submit">Submit on WhatsApp</button>
+            <button class="btn-primary" type="submit">Email Enquiry</button>
             <button class="btn-ghost" type="reset">Clear Form</button>
             <a class="btn-secondary" href="https://www.ilovepdf.com/compress_pdf" target="_blank" rel="noopener">Compress PDF</a>
           </div>
@@ -551,7 +557,7 @@
         </form>
 
         <div class="info-box">
-          On supported mobile browsers, this form opens the native share sheet with an image attached and the WhatsApp message ready. Choose WhatsApp and tap send.
+          The email is sent with a branded boxed layout to <code>invinciblescotax@gmail.com</code>. Document attachments are included only when uploaded.
         </div>
 
         <div class="table-wrap">
@@ -590,7 +596,7 @@
     </div>
 
     <p class="footer-note">
-      This page does not initialize Firebase, write to Firestore, or submit to email. WhatsApp is opened after local validation.
+      This page does not initialize Firebase or write to Firestore. Email delivery is handled by the configured form endpoint.
     </p>
   </main>
 
@@ -605,7 +611,6 @@
     const pbNumber = document.getElementById("pbNumber");
     const documents = document.getElementById("documents");
     const fileList = document.getElementById("fileList");
-    const submissionPanel = document.getElementById("submissionPanel");
 
     const disabledForOthers = [pan, employerCategory, pbNumber];
     const panRule = /^[A-Z]{3}P[A-Z][0-9]{4}[A-Z]$/;
@@ -617,8 +622,6 @@
     const maxFiles = 20;
     const maxFileBytes = 1024 * 1024;
     const localDuplicatePrefix = "invincible-scotax-submission:";
-    const whatsappNumber = "919010043298";
-    const whatsappMessage = "Hi Invincibles, I am interested in getting my ITR done";
 
     function setStatus(message, type) {
       statusMessage.textContent = message;
@@ -753,170 +756,6 @@
       return validateFiles();
     }
 
-    function buildSummaryRows() {
-      const files = Array.from(documents.files).map((file) => `${file.name} (${formatBytes(file.size)})`);
-      const rows = [
-        ["Name", document.getElementById("clientName").value.trim()],
-        ["Status", clientStatus.value],
-        ["Mobile", mobile.value.trim()],
-        ["Email", email.value.trim()]
-      ];
-
-      if (!pan.disabled) rows.push(["PAN", pan.value.trim().toUpperCase()]);
-      if (!employerCategory.disabled) rows.push(["Employer Category", employerCategory.value || "Not selected"]);
-      if (!pbNumber.disabled) rows.push(["PB / ID", pbNumber.value.trim()]);
-      rows.push(["Documents", files.length ? files.join(", ") : "No attachments uploaded"]);
-
-      return rows;
-    }
-
-    function downloadBlob(blob, filename) {
-      const link = document.createElement("a");
-      link.href = URL.createObjectURL(blob);
-      link.download = filename;
-      document.body.appendChild(link);
-      link.click();
-      link.remove();
-      setTimeout(() => URL.revokeObjectURL(link.href), 1000);
-    }
-
-    function wrapText(value, maxChars) {
-      const words = String(value || "").split(/\s+/);
-      const lines = [];
-      let line = "";
-
-      words.forEach((word) => {
-        if (!line) {
-          line = word;
-        } else if (`${line} ${word}`.length <= maxChars) {
-          line += ` ${word}`;
-        } else {
-          lines.push(line);
-          line = word;
-        }
-      });
-
-      if (line) lines.push(line);
-      return lines.length ? lines : [""];
-    }
-
-    function roundRect(context, x, y, width, height, radius) {
-      const safeRadius = Math.min(radius, width / 2, height / 2);
-      context.beginPath();
-      context.moveTo(x + safeRadius, y);
-      context.lineTo(x + width - safeRadius, y);
-      context.quadraticCurveTo(x + width, y, x + width, y + safeRadius);
-      context.lineTo(x + width, y + height - safeRadius);
-      context.quadraticCurveTo(x + width, y + height, x + width - safeRadius, y + height);
-      context.lineTo(x + safeRadius, y + height);
-      context.quadraticCurveTo(x, y + height, x, y + height - safeRadius);
-      context.lineTo(x, y + safeRadius);
-      context.quadraticCurveTo(x, y, x + safeRadius, y);
-      context.closePath();
-    }
-
-    function createSubmissionImageBlob() {
-      const rows = buildSummaryRows();
-      const canvas = document.createElement("canvas");
-      const context = canvas.getContext("2d");
-      const width = 1080;
-      const padding = 56;
-      const labelWidth = 285;
-      const rowGap = 16;
-      const wrappedRows = rows.map(([label, value]) => [label, wrapText(value, 46)]);
-      const detailsHeight = wrappedRows.reduce((total, row) => total + Math.max(72, 38 + row[1].length * 30) + rowGap, 0);
-
-      canvas.width = width;
-      canvas.height = Math.max(1080, 370 + detailsHeight);
-
-      context.fillStyle = "#f7fbff";
-      context.fillRect(0, 0, canvas.width, canvas.height);
-
-      const header = context.createLinearGradient(0, 0, width, 250);
-      header.addColorStop(0, "#5b8def");
-      header.addColorStop(1, "#57c6c2");
-      context.fillStyle = header;
-      context.fillRect(0, 0, width, 260);
-
-      context.fillStyle = "#ffffff";
-      context.font = "700 46px Segoe UI, Arial, sans-serif";
-      context.fillText("Invincibles CoTax", padding, 92);
-      context.font = "400 27px Segoe UI, Arial, sans-serif";
-      context.fillText("ITR Client Enquiry Summary", padding, 138);
-      context.font = "400 22px Segoe UI, Arial, sans-serif";
-      context.fillText("Prepared from the client enquiry form", padding, 183);
-
-      context.fillStyle = "#eaf9f7";
-      roundRect(context, padding, 300, width - padding * 2, 92, 22);
-      context.fill();
-      context.fillStyle = "#2d6861";
-      context.font = "700 21px Segoe UI, Arial, sans-serif";
-      context.fillText("WhatsApp message", padding + 28, 354);
-      context.fillStyle = "#24324a";
-      context.font = "400 24px Segoe UI, Arial, sans-serif";
-      context.fillText(whatsappMessage, padding + 255, 354);
-
-      let y = 448;
-      context.fillStyle = "#24324a";
-      context.font = "700 30px Segoe UI, Arial, sans-serif";
-      context.fillText("Client Details", padding, y);
-      y += 36;
-
-      wrappedRows.forEach(([label, lines], index) => {
-        const rowHeight = Math.max(72, 38 + lines.length * 30);
-        context.fillStyle = index % 2 ? "#fbfdff" : "#ffffff";
-        roundRect(context, padding, y, width - padding * 2, rowHeight, 18);
-        context.fill();
-        context.strokeStyle = "#dce8f6";
-        context.stroke();
-
-        context.fillStyle = "#60708d";
-        context.font = "700 21px Segoe UI, Arial, sans-serif";
-        context.fillText(label, padding + 28, y + 43);
-
-        context.fillStyle = "#24324a";
-        context.font = "400 23px Segoe UI, Arial, sans-serif";
-        lines.forEach((line, lineIndex) => {
-          context.fillText(line, padding + labelWidth, y + 43 + lineIndex * 30);
-        });
-
-        y += rowHeight + rowGap;
-      });
-
-      context.fillStyle = "#60708d";
-      context.font = "400 18px Segoe UI, Arial, sans-serif";
-      context.fillText("Generated locally in the browser for WhatsApp sharing.", padding, canvas.height - 48);
-
-      return new Promise((resolve) => {
-        canvas.toBlob(resolve, "image/png", 0.95);
-      });
-    }
-
-    async function prepareWhatsappSubmission() {
-      const imageBlob = await createSubmissionImageBlob();
-      const imageFile = new File([imageBlob], "Invincibles-ITR-client-enquiry.png", { type: "image/png" });
-
-      if (navigator.canShare && navigator.canShare({ files: [imageFile] }) && navigator.share) {
-        try {
-          await navigator.share({
-            title: "Invincibles ITR enquiry",
-            text: whatsappMessage,
-            files: [imageFile]
-          });
-          setStatus("Image prepared. Choose WhatsApp and tap send.", "success");
-          return;
-        } catch (error) {
-          if (error && error.name === "AbortError") {
-            setStatus("Sharing was cancelled. Tap Submit on WhatsApp again to retry.", "warning");
-            return;
-          }
-        }
-      }
-
-      downloadBlob(imageBlob, "Invincibles-ITR-client-enquiry.png");
-      setStatus("Your browser cannot open WhatsApp with an image attachment directly. The image was downloaded; share it to WhatsApp manually.", "warning");
-    }
-
     pan.addEventListener("input", normalizePan);
     mobile.addEventListener("input", () => {
       mobile.value = mobile.value.replace(/\D/g, "").slice(0, 10);
@@ -940,10 +779,10 @@
       });
     });
 
-    form.addEventListener("submit", async (event) => {
-      event.preventDefault();
+    form.addEventListener("submit", (event) => {
       const validationError = validateForm();
       if (validationError) {
+        event.preventDefault();
         setStatus(validationError, "error");
         return;
       }
@@ -953,8 +792,7 @@
         localStorage.setItem(duplicateKey, new Date().toISOString());
       }
 
-      setStatus("Validation passed. Preparing image for WhatsApp...", "success");
-      await prepareWhatsappSubmission();
+      setStatus("Validation passed. Emailing enquiry to Invincibles CoTax...", "success");
     });
 
     syncStatusFields();
